@@ -3,147 +3,109 @@ title: Externalizing Configurations for .NET Framework Apps
 owner: Buildpacks
 ---
 
-This topic explains how to use the Web Config Transform Extension Buildpack for ASP.NET apps.  
+This topic explains how to use the .NET Framework Web Config Transform Extension Buildpack
 
 ## <a id='prerequisites'></a>Prerequisites
 
 * Linux, Windows or MacOS development machine or VM.
 * A foundation with Windows cells available to push to.
+* A foundation with the .NET Framework Web Config Transform Extension Buildpack installed. 
 
 ## <a id='overview'></a> Overview
 
-Typical applications use environment-specific appSettings and connectionStrings to connect to external data repositories. 
-Typically, legacy Web and WCF application settings are injected through a `Web.config` file.  
+Cloud Native Applications derive their configurations and settings from external sources, 
+for example from config servers or by reading environment variables, etc. 
 
-As per cloud-native principles, an application's build artifacts should not include configuration settings, 
-so an external process must inject environment-specific settings into a cloud application.  
+Configuration settings are injected through Web.config files for applications that run on IIS, such as ASP.NET applications.  
+As per cloud native principles, configuration should not include build artifacts. 
+The .NET Framework Web Config Transform Extension Buildpack buildpack provides a solution to this problem by using token 
+replacement during ‘cf push’ staging. 
 
-The Web Config Transform Extension Buildpack injects environment-specific appSettings and connectionString values 
-into legacy Web and WCF application containers by performing token replacements during `cf push` staging.  
-
-Web and WCF applications are created with `Web.Debug.config` and `Web.Release.config` files as the 
-"_debug_" and "_release_" transform versions of their `Web.config` file. 
-You must externalize the configurations in these files and establish a Spring Cloud Config Server 
-to link your app to the externalized settings.  
-
-To leverage the Web Config Transform Extension Buildpack, complete the following procedures:  
+To leverage the .NET Framework Web Config Transform Extension Buildpack, complete the following procedures:  
 
 1. [Identify Environment Dependent Configurations and Externalize](#tokenize)
-1. [Create a Parameterized Cloud Foundry App Manifest](#create-manifest)
-1. [Establish a Spring Cloud Config Server](#move-to-spring-cloud)
-1. [Push the App](#push-app)
+1. [Create a Cloud Foundry App Manifest](#create-manifest)
+1. [Add Web Config Transformations](#transformations)
+1. [Move Config Settings to a Git Repoistory](#move-to-git-repo)
+1. [Create a Configuration Service for Spring Cloud Config Server](#create-spring-cloud-service)
+1. [Bind Config Service to App Using Manifest](#bind-service-to-app)
+1. [Add ASPNETCORE_ENV Variable to Manifest](#add-aspnetcore-env)
+1. [Push the App by Parameterized Environment Name](#push-app)
 
-<p class='note'><strong>Note:</strong> The Web Config Transform Extension Buildpack can inject appSettings and 
-    connectionStrings regardless of whether the replacement tokens are present in the <code>Web.Release.Config</code> file.
+<p class='note'><strong>Note:</strong> This buildpack can inject appSettings and 
+    connectionStrings regardless of whether the replacement tokens are present in the <code>Web.Release.Config</code> file. 
+    For more information please see <a href="#special-behavior">Special Behavior for appSettings and connectionStrings</a> 
+    section below.
 </p>
 
 ## <a id='tokenize'></a> Identify Environment-Dependent Configurations and Externalize
 
-Your `Web.config` environment-specific settings must be replaced with placeholder tokens and their values externalized 
-outside of your application.  
+To use the Web Config Transform Extension Buildpack you will replace your `Web.config` files' environment-specific settings 
+with placeholder tokens, and externalize their values outside of your application.  
 
-<p class='note'><strong>Note:</strong> When debugging on a developer machine, transform the <i>debug</i> file <code>Web.Debug.config</code> and use the <code>Debug</code> configuration profile.
-</p> 
+To tokenize your workload's environment-specific configuration settings, complete the following steps:  
 
-To externalize your workload's environment-specific configuration settings, complete the following steps:  
+1. Backup your application's `Web.config` file, and its transform files, 
+for example `Web.config`, `Web.Debug.Config`, and `Web.Release.Config`.  
 
-1. Backup your workload's `Web.config`, and its `Web.Debug.config`, and `Web.Release.config` transform files.  
+1. Identify configuration items in the `Web.config` transform files that are environment-dependent. These items need to be externalized.
 
-1. Review and identify your `Web.config` and its transform files for environment-specific configuration settings.  
+1. Modify your transform files to use tokenized configuration items 
+by replacing hard-coded values with tokens following the format `#{configPath:key}`.  
 <br>
-    For example, the `connectionString` properties in the sample files below are environment-specific:  
+    For example, refer to the before and after tokenizing sample files, below: 
 <br>
-    **Web.Config**
-
-    ```xml
-    <connectionStrings>
-        <add name="MyDB" 
-             connectionString="Data Source=LocalSQLServer;Initial Catalog=MyReleaseDB;User ID=serviceacc3;Password=PaKsAsEwWoOrOdT3" />
-    </connectionStrings>
-    ```
-
-    **Web.Debug.config**
-
-    ```xml
-    <connectionStrings>
-        <add name="TestDB" 
-             connectionString="Data Source=ReleaseSQLServer;Initial Catalog=TestDB010;User ID=testaccount;Password=ABC123!" 
-             xdt:Transform="SetAttributes" 
-             xdt:Locator="Match(name)"/>
-    </connectionStrings>
-    ```
-
-    **Web.Release.config**
-
-    ```xml
-    <connectionStrings>
-        <add name="MyDB" 
-             connectionString="Data Source=ReleaseSQLServer;Initial Catalog=MyReleaseDB;User ID=serviceacc3;Password=PaKsAsEwWoOrOdT3" 
-             xdt:Transform="SetAttributes" 
-             xdt:Locator="Match(name)"/>
-    </connectionStrings>
-    ```
-
-
-
-1. Tokenize your `Web.Debug.config` and `Web.Release.config` environment-specific properties by replacing hard-coded values 
-with tokens following the format `#{configPath:key}`.  
-<br>
-    For example:  
-<br>
-
-    **Tokenized Web.Release.config**
-
-    ```xml
-    <?xml version="1.0" encoding="utf-8"?>
-    <!-- For Cloud Foundry -->
-    <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
-  
-      <connectionStrings  xdt:Transform="Replace">
-        <add name="MyDB" connectionString="#{connectionStrings:MyDB}" providerName="System.Data.SqlClient"/>
-      </connectionStrings>
-  
-      <system.serviceModel>
-        <client xdt:Transform="Replace">
-      
-          <endpoint 
-            address="#{client:Default_IMyLogService:address}" 
-            binding="#{client:Default_IMyLogService:binding}" 
-            bindingConfiguration="#{client:Default_IMyLogService:bindingConfiguration}"
-            contract="ServiceProxy.IMyLogService" name="Default_IMyLogService" />
-    
-        </client>
-      </system.serviceModel>
-
-    </configuration>
-    ```
 
     <p class='note'><strong>Note:</strong> Transform xml attributes and tokens are case-sensitive.</p>
 
-## <a id='create-manifest'></a> Create a Parameterized Cloud Foundry App Manifest 
+    **Before tokenizing**
+<br><br> 
+    Web.Config
 
-Cloud Foundry performs token replacements during `cf push` by using an extension buildpack. 
-You must provide a Cloud Foundry app manifest for the extension buildpack to perform token 
-replacements for your application.  
+    ```xml
+    <connectionStrings>
+        <add name="MyDB" 
+             connectionString="Data Source=LocalSQLServer;Initial Catalog=MyReleaseDB;User ID=xxxx;Password=xxxx" />
+    </connectionStrings>
+    ```
+<br>
+    Web.Release.Config
 
-Perform the following steps to test your tokenizations by using environment variables 
-to perform token replacements from a Cloud Foundry App Manifest.  
+    ```xml
+    <connectionStrings>
+        <add name="MyDB" 
+             connectionString="Data Source=ReleaseSQLServer;Initial Catalog=MyReleaseDB;User ID=xxxx;Password=xxxx" 
+             xdt:Transform="SetAttributes" 
+             xdt:Locator="Match(name)"/>
+    </connectionStrings>
+    ```
+<br>
+    **After tokenizing** 
+<br><br>
+    Web.Config (no change)  
+<br>
+    Web.Release.Config
 
-<p class='note'><strong>Note:</strong> Adding token replacements with Environment variables is only for experimental activities. 
-    The manifest should contain configuration item keys and values for testing purposes only. 
-    Configuration settings should be externalized using git repositories and Spring Cloud Config Server.  
-    For more information about externalizing configuration settings in Spring Cloud Config Server, 
-    see <a href="#move-to-spring-cloud">Establish a Spring Cloud Config Server</a>, below.
-</p>
+    ```xml
+    <connectionStrings>
+        <add name="MyDB" 
+             connectionString="#{connectionStrings:MyDB}" 
+             xdt:Transform="SetAttributes" 
+             xdt:Locator="Match(name)"/>
+    </connectionStrings>
+    ``` 
+
+## <a id='create-manifest'></a> Create a Cloud Foundry App Manifest 
+
+Perform the following steps to test your tokenizations by using environment variables in the Cloud Foundry app manifest
+to perform the token replacements. 
+The following procedures describe how to externalize your tokenized configurations using a git repository and Spring Cloud Config Server.
 
 ### <a id='create-manifest'></a> Create a Cloud Foundry App Manifest  
 
-To create a Cloud Foundry app manifest for your workload, complete the following steps:  
+To create a Cloud Foundry app manifest for your workload, complete the following step:  
 
-1. Ensure your application has a Cloud Foundry manifest file. 
-If the manifest file does not exist create it.  
-<br>
-    If your application is in Cloud Foundry, you can create the manifest file 
+1. Ensure your application has a Cloud Foundry manifest file. If your application is in Cloud Foundry, you can create the manifest file 
     by running the following command:  
 
     ```
