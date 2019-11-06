@@ -99,7 +99,12 @@ by replacing hard-coded values with tokens following the format `#{configPath:ke
 
 Perform the following steps to test your tokenizations by using environment variables in the Cloud Foundry app manifest
 to perform the token replacements. 
-The following procedures describe how to externalize your tokenized configurations using a git repository and Spring Cloud Config Server.
+
+<p class="note"><strong>Note:</strong> Token replacements with environment variables is solely for testing purposes
+    to ensure your tokens are correctly replaced. 
+    After validating using environment variables you will externalize your configuration settings 
+    using git repositories and Spring Cloud Config Server in later steps below.
+</p>
 
 ### <a id='create-manifest'></a> Create a Cloud Foundry App Manifest  
 
@@ -116,58 +121,47 @@ To create a Cloud Foundry app manifest for your workload, complete the following
 
 ### <a id='modify-manifest'></a> Modify Your Cloud Foundry App Manifest  
 
-You should prepare your Cloud Foundry app manifest for token replacement with 
-debug/development environment connection values.  
-
 To configure your workload's Cloud Foundry app manifest for token replacement, complete the following steps:  
 
-1. Review [web-config-transform-buildpack](https://github.com/cloudfoundry-community/web-config-transform-buildpack/releases) 
-    in GitHub to determine the Web Config Transform Buildpack version to pull.  
+<p class='note'><strong>Note:</strong> You should prepare your Cloud Foundry app manifest for token replacement with debug/development 
+environment connection values. 
+</p>
 
 1. Backup your app manifest file.  
 
 1. Open the app manifest file in a text editor.
 
-1. Add a reference for your chosen Web Config Transform Buildpack version to the manifest file's `buildpacks` 
-property.  
-
-    ```yaml
-    - https://github.com/cloudfoundry-community/web-config-transform-buildpack/releases/download/VERSION/web-config-transform-buildpack-VERSION.zip
-    ```
-
-    Where:  
-    * `VERSION` is the buildpack version.   
-
-    For example:
+1. Add a reference for the .NET Framework Web Config Transform Extension Buildpack to the manifest file's `buildpacks` 
+property.
 
     ```yaml
     buildpacks:
-    - https://github.com/cloudfoundry-community/web-config-transform-buildpack/releases/download/v1.1.5/web-config-transform-buildpack-v1.1.5.zip
+    - WEB-CONFIG-TRANSFORM-BUILDPACK
     - hwc_buildpack
-    ```    
+    ```
 
-    <p class='note'><strong>Note:</strong> Ensure the new entry precedes the existing 
-      <code>hwc_buildpack</code> buildpacks entry. The <code>hwc_buildpack</code> entry is the step
-      performing token replacement on <code>cf push</code> action.
+    Where `WEB-CONFIG-TRANSFORM-BUILDPACK` is name of the .NET Framework Web Config Transform Extension buildpack 
+    in your foundation. Confirm the buildpacks in your foundation by using `cf buildpacks`.
+
+    <p class="note"><strong>Note:</strong> Ensure the new entry precedes the existing 
+      <code>hwc_buildpack</code> buildpacks entry.
     </p>
 
   
-1. Add `key:value` pairs to the manifest for each the Web Config file's tokenized settings. 
-Create each `key:value` pair line using the following format:  
+1. Add `key:value` pairs to the manifest for each the Web Config file's tokenized settings.  
+<br>
+    For example, the following provides connection string values for a Web Config 
+    file's`#{connectionStrings:MyDB}` placeholder:
 
     ```yaml
-    "SETTING-NAME": "SETTING-VALUE"
-    ```
-
-    Where:    
-    * `SETTING-NAME` is the name of a configuration setting used by your app.  
-    * `SETTING-VALUE` is the development value of the setting.  
-
-    For example:
-
-    ```yaml
-    env:
-      "connectionStrings:MyDB": "Data Source=ReleaseSQLServer;Initial Catalog=MyReleaseDB;User ID=serviceacc3;Password=PaKsAsEwWoOrOdT3"
+    applications:
+    - name: sampleapp
+      stack: windows
+      buildpacks:
+      - WEB-CONFIG-TRANSFORM-BUILDPACK
+      - hwc_buildpack
+      env:
+        "connectionStrings:MyDB": "Data Source=ReleaseSQLServer;Initial Catalog=MyReleaseDB;User ID=xxxx;Password=xxxx"
     ```
 
     <p class='note'><strong>Note:</strong> Create as many <code>key:value</code> pair lines as are 
@@ -175,48 +169,50 @@ Create each `key:value` pair line using the following format:
         environment's connection values.
     </p>
 
-1. Review the resulting manifest file. The manifest file should adhere to the following format:
+## <a id='transformations'></a> Add Web Config Transformations
 
-    ```yaml
-    applications:
-    - name: APP-NAME
-      stack: windows
-      buildpacks:
-      - https://github.com/cloudfoundry-community/web-config-transform-buildpack/releases/download/VERSION/web-config-transform-buildpack-VERSION.zip
-      - hwc_buildpack
-      env:
-        "SETTING-NAME": "SETTING-VALUE"
+By default, all web apps and WCF apps are created with **Debug** and **Release** configurations and 
+corresponding web config transformation files (`Web.Debug.Config`, `Web.Release.Config`).
+
+1. Add required transformations to your `Web.Release.Config` file.  
+<br>
+   For example, the following `Web.Release.Config` has been edited with transformations:  
+
+    ```xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <!-- For Cloud Foundry -->
+    <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+
+      <connectionStrings  xdt:Transform="Replace">
+        <add name="MyDB" connectionString="#{connectionStrings:MyDB}" providerName="System.Data.SqlClient"/>
+      </connectionStrings>
+
+      <system.serviceModel>
+        <client xdt:Transform="Replace">
+
+          <endpoint 
+            address="#{client:Default_IMyLogService:address}" 
+            binding="#{client:Default_IMyLogService:binding}" 
+            bindingConfiguration="#{client:Default_IMyLogService:bindingConfiguration}"
+            contract="ServiceProxy.IMyLogService" name="Default_IMyLogService" />
+
+        </client>
+      </system.serviceModel>
+
+    </configuration>
     ```
 
-    Where:  
-    * `APP-NAME` is your app's name.  
-    * `VERSION` is the buildpack version.   
-    * `SETTING-NAME` is the name of a configuration setting used by your app. 
-    * `SETTING-VALUE` is the development value of the setting. 
+    <p class='note'><strong>Note:</strong>  For developer machine debugging, use the <code>Debug</code> configuration profile 
+        and your <code>Web.Debug.config</code> for transformation.
+    </p>
 
-    For example:
-
-    ```yaml
-    applications:
-    - name: sampleapp
-      stack: windows
-      buildpacks:
-      - https://github.com/cloudfoundry-community/web-config-transform-buildpack/releases/download/v1.1.5/web-config-transform-buildpack-v1.1.5.zip
-      - hwc_buildpack
-      env:
-        "connectionStrings:MyDB": "Data Source=ReleaseSQLServer;Initial Catalog=MyReleaseDB;User ID=serviceacc3;Password=PaKsAsEwWoOrOdT3"
-    ```
-
-### <a id='test-push'></a> Validation Test the App
-
-1. To verify your config settings are properly transformed by 
-building and pushing your app to Cloud Foundry, run the following command:   
+1.  Build and push the application to Cloud Foundry to verify that your config settings are properly transformed:  
 
     ```script
     cf push
     ```
 
-## <a id='move-to-spring-cloud'></a> Establish a Spring Cloud Config Server 
+## <a id='move-to-git-repo'></a> Move Config Settings to a Git Repository  
 
 You must store your environment-specific transformations in a secured environment for your deployment to be production-ready.  
 
