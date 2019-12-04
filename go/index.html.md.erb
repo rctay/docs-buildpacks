@@ -66,6 +66,41 @@ require (
 )
 ```
 
+#### <a id='gomod_subdirectory_main_package'></a> When Your Main Package is Not in the Project Root ####
+
+A common project pattern is to place main packages in a subdirectory called `cmd` like in the example below:
+
+```bash
+$ tree app-package-name
+app-package-name
+├── cmd
+│   ├── cli
+│   │   └── main.go
+│   └── server
+│       └── main.go
+├── go.mod
+├── go.sum
+├── shared.go
+├── shared_test.go
+└── manifest.yml
+```
+
+When you configure your project like this, set the environment variable `GO_INSTALL_PACKAGE_SPEC` 
+to `$MODULE_NAME/$MAIN_PACKAGE_PATH`.
+
+If the module name for the above `app-package-name` app is `example.com/user/app-package-name`,
+the value of `GO_INSTALL_PACKAGE_SPEC` must be `example.com/user/app-package-name/cmd/server`.
+
+If you want to put this in your `manifest.yml`, see the following example:
+
+```yaml
+---
+applications:
+- name: app-package-name
+  env:
+    GO_INSTALL_PACKAGE_SPEC: example.com/user/app-package-name/cmd/server
+```
+
 ### <a id='with_godep'></a>Push an App with godep ###
 If you are using [godep](https://github.com/tools/godep) to package your dependencies, make sure that you have created a valid `Godeps/Godeps.json` file in the root directory of your app by running `godep save`.
 
