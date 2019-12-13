@@ -308,6 +308,7 @@ For example: `BUNDLE_BIN_PATH:/home/vcap/app/vendor/bundle/ruby/1.9.1/gems/bundl
 
 ### <a id='BUNDLE-GEMFILE'></a> BUNDLE_GEMFILE
 
+
 This variable specifies the path to the app Gemfile.
 
 For example: `BUNDLE_GEMFILE:/home/vcap/app/Gemfile`
@@ -316,7 +317,7 @@ For example: `BUNDLE_GEMFILE:/home/vcap/app/Gemfile`
 
 The `BUNDLE_WITHOUT` environment variable instructs <%= vars.product_short %> to skip gem installation in excluded groups.
 
-Use this with Rails apps, where "assets" and "development" gem groups typically contain gems that are not needed when the app runs in production. 
+Use this with Rails apps, where "assets" and "development" gem groups typically contain gems that are not needed when the app runs in production.
 
 For example: `BUNDLE_WITHOUT=assets`
 

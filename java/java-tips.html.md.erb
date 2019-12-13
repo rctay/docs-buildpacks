@@ -42,7 +42,7 @@ Initialized empty Git repository in /tmp/buildpacks/java-buildpack/.git/
 
 ## <a id='configuration'></a> Configuration
 
-In most cases, the buildpack should work without any configuration. If you are new to <%= vars.product_short %>, <%= vars.recommended_by %> recommends that you make your first attempts without modifying the buildpack configuration. If the buildpack requires some configuration, use a fork of the buildpack. For more information, see [Configuration and Extension][https://github.com/cloudfoundry/java-buildpack#configuration-and-extension] in the Cloud Foundry Java Buildpack repository on GitHub
+In most cases, the buildpack should work without any configuration. If you are new to <%= vars.product_short %>, <%= vars.recommended_by %> recommends that you make your first attempts without modifying the buildpack configuration. If the buildpack requires some configuration, use a fork of the buildpack. For more information, see [Configuration and Extension][https://github.com/cloudfoundry/java-buildpack#configuration-and-extension] in the Cloud Foundry Java Buildpack repository on GitHub.
 
 
 ## <a id='java-client-library'></a> Java Client Library
@@ -320,7 +320,6 @@ If your app fails to upload when you push it to <%= vars.product_short %>, it ma
     ```
     cf push YOUR-APP -p PATH/TO/WAR-FILE
     ```
-
     Where:
 
     * `YOUR-APP` is the name of your app.
@@ -383,8 +382,8 @@ If your app does not start quickly, the health check may fail because it checks 
 To resolve this issue, run `cf push` with the `-t TIMEOUT-THRESHOLD` option to increase the timeout threshold. Run:
 
 ```
-$ cf push YOUR-APP -t TIMEOUT-THRESHOLD
-</pre>
+cf push YOUR-APP -t TIMEOUT-THRESHOLD
+```
 
 Where:
 
