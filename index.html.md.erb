@@ -7,100 +7,64 @@ owner: Buildpacks
 
 Buildpacks provide framework and runtime support for apps. Buildpacks typically examine your apps to determine what dependencies to download and how to configure the apps to communicate with bound services.
 
-When you push an app, Cloud Foundry automatically detects an appropriate buildpack for it. This buildpack is used to compile or prepare your app for launch.
+When you push an app, <%= vars.product_runtime %> (<%= vars.product_short %>) automatically detects an appropriate buildpack for it. This buildpack is used to compile or prepare your app for launch.
 
-<p class="note"><strong>Note</strong>: Cloud Foundry deployments often have limited access to dependencies. 
-This limitation occurs when the deployment is behind a firewall, or when administrators want to use local mirrors and proxies. 
-In these circumstances, Cloud Foundry provides a <a href="https://github.com/cloudfoundry/buildpack-packager">
-Buildpack Packager</a> app.</p>
+<p class="note"><strong>Note:</strong> <%= vars.product_short %> deployments often have limited access to dependencies. This limitation occurs when the deployment is behind a firewall, or when administrators want to use local mirrors and proxies. In these circumstances, <%= vars.product_short %> provides a Buildpack Packager app. For more information, see the <a href="https://github.com/cloudfoundry/buildpack-packager">Buildpack Packager</a> repository on GitHub.</p>
 
-##<a id='about-buildpacks'></a>About Buildpacks
 
-For general information about buildpacks, see <a href="./using-buildpacks.html" class="subnav">About Buildpacks</a>.
+## <a id='about-buildpacks'></a> About Buildpacks
 
-##<a id='system-buildpacks'></a>System Buildpacks
+For general information about buildpacks, see [About Buildpacks](./using-buildpacks.html).
 
-Cloud Foundry includes a set of system buildpacks for common languages and frameworks. 
-This table lists the system buildpacks.
+<%= vars.product_short %> includes a set of system buildpacks for common languages and frameworks. The table below lists the system buildpacks:
 
-<table border="1" class="nice" >
-  <tr>
-    <th>Name</th>
-    <th>Supported Languages, Frameworks, and Technologies</th>
-    <th>GitHub Repository</th>
-  </tr>
-  <tr>
-    <td><a href="./binary/index.html" class="subnav">Binary</a></td>
-    <td><p><i>n/a</i></p></td>
-    <td><a href="https://github.com/cloudfoundry/binary-buildpack">Binary source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./go/index.html" class="subnav">Go</a></td>
-    <td><p>Go</p></td>
-    <td><a href="https://github.com/cloudfoundry/go-buildpack">Go source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./hwc/index.html" class="subnav">HWC</a></td>
-    <td><p>HWC</p></td>
-    <td><a href="https://github.com/cloudfoundry-incubator/hwc">HWC source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./java/index.html" class="subnav">Java</a></td>
-    <td><p>Grails, Play, Spring, or any other JVM-based language or framework</p></td>
-    <td><a href="https://github.com/cloudfoundry/java-buildpack">Java source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./dotnet-core/index.html" class="subnav">.NET Core</a></td>
-    <td><p>.NET Core</p></td>
-    <td><a href="https://github.com/cloudfoundry/dotnet-core-buildpack/">.NET Core source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./nginx/index.html" class="subnav">NGINX</a></td>
-    <td><p>NGINX</p></td>
-    <td><a href="https://github.com/cloudfoundry/nginx-buildpack">NGINX source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./node/index.html" class="subnav">Node.js</a></td>
-    <td><p>Node or JavaScript</p></td>
-    <td><a href="https://github.com/cloudfoundry/nodejs-buildpack">Node.js source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./php/index.html" class="subnav">PHP</a></td>
-    <td><p>Cake, Symfony, Zend, NGINX, or HTTPD</p></td>
-    <td><a href="https://github.com/cloudfoundry/php-buildpack">PHP source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./python/index.html" class="subnav">Python</a></td>
-    <td><p>Django or Flask</p></td>
-    <td><a href="https://github.com/cloudfoundry/python-buildpack">Python source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./r/index.html" class="subnav">R</a> </td>
-    <td><p>R</p></td>
-    <td><a href="https://github.com/cloudfoundry/r-buildpack">R source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./ruby/index.html" class="subnav">Ruby</a></td>
-    <td><p>Ruby, JRuby, Rack, Rails, or Sinatra</p></td>
-    <td><a href="https://github.com/cloudfoundry/ruby-buildpack">Ruby source</a></td>
-  </tr>
-  <tr>
-    <td><a href="./staticfile/index.html" class="subnav">Staticfile</a></td>
-    <td><p>HTML, CSS, JavaScript, or NGINX</p></td>
-    <td><a href="https://github.com/cloudfoundry/staticfile-buildpack">Staticfile source</a></td>
-  </tr>
-</table>
+| Name | Supported Languages, Frameworks, and Technologies | GitHub Repository |
+| ---- | ------------------------------------------------- | ----------------- |
+| [Binary](./binary/index.html) | N/A | [Cloud Foundry Binary Buildpack](https://github.com/cloudfoundry/binary-buildpack) |
+| [Go](./go/index.html) | Go | [Cloud Foundry Go(Lang) Buildpack](https://github.com/cloudfoundry/go-buildpack) |
+| [HWC](./go/index.html) | HWC | [hwc (hostable web core)](https://github.com/cloudfoundry-incubator/hwc) |
+| [Java](./java/index.html) | Grails, Play, Spring, or any other JVM-based language or framework | [Cloud Foundry Java Buildpack](https://github.com/cloudfoundry/java-buildpack) |
+| [.NET Core](./dotnet-core/index.html) | .NET Core | [Cloud Foundry buildpack: .NET Core](https://github.com/cloudfoundry/dotnet-core-buildpack/) |
+| [NGINX](./nginx/index.html) | NGINX | [Cloud Foundry NGINX Buildpack](https://github.com/cloudfoundry/nginx-buildpack) |
+| [Node.js](./node/index.html) | Node or JavaScript | [Cloud Foundry Node.js Buildpack](https://github.com/cloudfoundry/nodejs-buildpack) |
+| [PHP](./php/index.html) | Cake, Symfony, Zend, NGINX, or HTTPD | [Cloud Foundry PHP Buildpack](https://github.com/cloudfoundry/php-buildpack) |
+| [Python](./python/index.html) | Django or Flask | [Cloud Foundry Python Buildpack](https://github.com/cloudfoundry/python-buildpack) |
+| [R](./r/index.html) | R | [Cloud Foundry R Buildpack](https://github.com/cloudfoundry/r-buildpack) |
+| [Ruby](./ruby/index.html) | Ruby, JRuby, Rack, Rails, or Sinatra | [Cloud Foundry Ruby Buildpack](https://github.com/cloudfoundry/ruby-buildpack) |
+| [Staticfile]() | HTML, CSS, JavaScript, or NGINX | [Cloud Foundry Staticfile Buildpack](https://github.com/cloudfoundry/staticfile-buildpack) |
 
-##<a id='community-buildpacks'></a>Community Buildpacks
 
-You can find a list of unsupported, community-created buildpacks here: 
-<a href="https://github.com/cloudfoundry-community/cf-docs-contrib/wiki/Buildpacks#community-created">
-cf-docs-contrib</a>.
+## <a id='using-buildpacks'></a> Using Buildpacks
 
-##<a id='developing-buildpacks'></a>Customizing and Developing Buildpacks
+The following topics discuss different usage scenarios for buildpacks in <%= vars.product_short %>:
 
-For information about customizing existing buildpacks and developing new buildpacks, see <a href="./developing-buildpacks.html" class="subnav">Customizing and Developing Buildpacks</a>.
+* [How Buildpacks Work in <%= vars.product_short %>](understand-buildpacks.html)
 
-For information about updating and releasing a new version of a Cloud Foundry buildpack 
-through the Cloud Foundry Buildpacks Team Concourse pipeline, see <a href="./buildpack-ci-index.html">Using CI for Buildpacks</a>.
-You can use this as a model when working with Concourse to build and release new versions of your own buildpacks.
+* [Stack Association](stack-association.html)
+
+* [Pushing an App with Multiple Buildpacks](use-multiple-buildpacks.html)
+
+* [Using a Proxy](proxy-usage.html)
+
+* [Supported Binary Dependencies](supported-binary-dependencies.html)
+
+* [Production Server Configuration](prod-server.html)
+
+
+## <a id='system-buildpacks'></a> System Buildpacks
+
+For information about the existing buildpacks that <%= vars.product_short %> supports, see [System Buildpacks](system-buildpacks.html.
+
+
+## <a id='community-buildpacks'></a> Community Buildpacks
+
+For a list of unsupported, community-created buildpacks, see the [Community created](https://github.com/cloudfoundry-community/cf-docs-contrib/wiki/Buildpacks#community-created) section of the _Buildpack information for Cloud Foundry v2_ page in the cf-docs-contrib repository on GitHub.
+
+
+## <a id='developing-buildpacks'></a> Customizing and Developing Buildpacks
+
+For information about customizing existing buildpacks and developing new buildpacks, see [Customizing and Developing Buildpacks](./developing-buildpacks.html).
+
+### <a id='buildpack-ci'></a> Using Continuous Integration for Buildpacks
+
+For information about updating and releasing a new version of a <%= vars.product_short %> buildpack through the <%= vars.product_short %> Buildpacks Team Concourse pipeline, see [Using CI for Buildpacks](./buildpack-ci-index.html). You can use this as a model when working with Concourse to build and release new versions of your own buildpacks.
