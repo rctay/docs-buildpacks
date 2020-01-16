@@ -3,10 +3,7 @@ title: .NET Core Buildpack
 owner: Buildpacks
 ---
 
-<strong><%= modified_date %></strong>
-
-This topic describes how to push Cloud Foundry apps to Linux cells using the .NET Core buildpack. You can find supported ASP.NET Core versions 
-in the [.NET Core buildpack release notes](https://github.com/cloudfoundry/dotnet-core-buildpack/releases).
+This topic describes how to push <%= vars.product_name %> apps to Linux cells using the .NET Core buildpack. You can find supported ASP.NET Core versions in the [.NET Core buildpack release notes](https://github.com/cloudfoundry/dotnet-core-buildpack/releases).
 
 <p class='note'><strong>Note:</strong> The .NET Core buildpack can only be used to deploy apps to Linux cells. To deploy .NET Core apps to Windows cells, use the <a href="../binary/index.html">Binary buildpack</a>.</p>
 
@@ -95,13 +92,13 @@ For additional information about using source-based, non-published deployments, 
 * [Use Non-Default Package Sources](#non-default-package-sources)
 * [Disable and Clear Your NuGet Package Cache](#disabling-nuget)
 
-<p class='note'><strong>Note:</strong> The source-based deployment workflow also uses the <code>cf push</code> command to push source-based apps to Cloud Foundry.</p>
+<p class='note'><strong>Note:</strong> The source-based deployment workflow also uses the <code>cf push</code> command to push source-based apps to <%= vars.product_name %>.</p>
 
 ### <a id='multiple-projects'></a>Deploy Apps with Multiple Projects
 
 If you are deploying an app containing multiple projects, you must specify which of the app's projects is the main project. 
 
-To specify the main project in a multi-project deployment perform the following steps:  
+To specify the main project in a multi-project deployment:  
 
 1. Create a `.deployment` file in your app's root folder and open the new file in a text editor.
 1. Designate the main project's path by configuring the file, using the following format:
