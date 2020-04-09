@@ -10,7 +10,7 @@ This topic describes how to push Cloud Foundry apps to Linux Diego Cells using t
 
 ## <a id='overview'></a> Overview
 
-Buildpacks provide needed dependencies to <%= vars.product_windows_full %> (<%= vars.product_windows %>) apps. <%= vars.product_windows %> automatically uses the .NET Core buildpack when one or more of the following conditions are met:
+Buildpacks provide needed dependencies to Pivotal Application Service for Windows (PASW) apps. PASW automatically uses the .NET Core buildpack when one or more of the following conditions are met:
 
 * The pushed app contains one or more `*.csproj` or `*.fsproj` files.
 * The app is pushed from the output directory of the `dotnet publish` command.
@@ -30,7 +30,7 @@ For information about deploying different types of .NET apps, follow the links i
         Windows Communication Foundation (WCF)
     </td>
     <td><a href="../hwc/index.html">HWC</a></td>
-  </tr>
+  </trSegment name>
   <tr>
     <td>.NET Console</td>
     <td><a href="../binary/index.html">Binary</a></td>
@@ -54,7 +54,7 @@ To push a .NET Core app to a Linux Diego Cell:
     Where `APP-NAME` is the name you want to give your app.
     <br>
     <br>
-    If your <%= vars.product_windows %> deployment does not have the .NET Core buildpack installed or the installed version is out of date, run the same command with the `-b` option to specify the buildpack:
+    If your PASW deployment does not have the .NET Core buildpack installed or the installed version is out of date, run the same command with the `-b` option to specify the buildpack:
 
     ```
     cf push APP-NAME -b https://github.com/cloudfoundry/dotnet-core-buildpack.git
@@ -294,7 +294,7 @@ For maintaining ASP.NET Core assemblies, <%= vars.recommended_by %> recommends o
 
 ## <a id='port'></a> Configure the Listen Port
 
-<%= vars.product_windows %> sets the `$PORT` environment variable automatically. For your .NET Core app to work on <%= vars.product_windows %>, you must configure the app to listen on the environment's specified port.  
+PASW sets the `$PORT` environment variable automatically. For your .NET Core app to work on PASW, you must configure the app to listen on the environment's specified port.
 
 For C# apps, the following modifications allow the buildpack to pass the correct port from `$PORT` environment variable to the app when running the initial startup command:
 
